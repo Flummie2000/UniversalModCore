@@ -319,12 +319,13 @@ public class ModdedEntity extends Entity implements IEntityAdditionalSpawnData {
     /* Ridable */
 
     /** @see IRidable#canFitPassenger */
-    /* TODO 1.7.10
-    @Override
     public boolean canFitPassenger(Entity passenger) {
         return iRidable.canFitPassenger(self.getWorld().getEntity(passenger));
     }
-    */
+
+    public boolean canPassengerLeaveVehicle(Entity passenger) {
+        return iRidable.canPassengerLeaveVehicle(self.getWorld().getEntity(passenger));
+    }
 
     /** Passenger offset from entity center rotated by entity yaw */
     private Vec3d calculatePassengerOffset(cam72cam.mod.entity.Entity passenger) {

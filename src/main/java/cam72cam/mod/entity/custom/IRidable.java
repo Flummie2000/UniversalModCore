@@ -11,6 +11,11 @@ public interface IRidable {
         }
 
         @Override
+        public boolean canPassengerLeaveVehicle(Entity passenger) {
+            return true;
+        }
+
+        @Override
         public boolean shouldRiderSit(Entity passenger) {
             return false;
         }
@@ -40,6 +45,9 @@ public interface IRidable {
 
     /** Called before riding is allowed */
     boolean canFitPassenger(Entity passenger);
+
+    /** Called before dismounting is allowed */
+    boolean canPassengerLeaveVehicle(Entity passenger);
 
     /** Allows player animation to be set to sitting (WARNING: not supported on all versions) */
     boolean shouldRiderSit(Entity passenger);
