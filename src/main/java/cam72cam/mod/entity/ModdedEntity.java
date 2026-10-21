@@ -11,6 +11,7 @@ import cam72cam.mod.serialization.*;
 import cam72cam.mod.util.SingleCache;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -34,6 +35,7 @@ public class ModdedEntity extends Entity implements IEntityAdditionalSpawnData {
     // Keeps track of where passengers are within this entity
     @TagField(value = "passengers", mapper = PassengerMapper.class)
     private Map<UUID, Vec3d> passengerPositions = new HashMap<>();
+    private final Map<UUID, PassengerWalkAnimator> walkers = new HashMap<>();   // client only
 
     //Data synchronization
     //1.7 uses int as keys so here we hash the names...
@@ -409,6 +411,18 @@ public class ModdedEntity extends Entity implements IEntityAdditionalSpawnData {
 
         if (worldObj.loadedEntityList.indexOf(seat) < worldObj.loadedEntityList.indexOf(passenger.internal)) {
             pos = pos.add(motion);
+        }
+
+        //animate player movement for non-seated players based on internal movement
+        if (worldObj.isRemote && passenger.internal instanceof EntityLivingBase) {
+            PassengerWalkAnimator w = walkers.computeIfAbsent(passenger.getUUID(), id -> new PassengerWalkAnimator());
+            double dist = 0;
+            if (w.lastOffset != null) {
+                Vec3d a = calculatePassengerPosition(offset);
+                Vec3d b = calculatePassengerPosition(w.lastOffset);
+                dist = Math.hypot(a.x - b.x, a.z - b.z);
+            }
+            w.update((EntityLivingBase) passenger.internal, offset, dist);
         }
 
         passenger.setPosition(pos);
